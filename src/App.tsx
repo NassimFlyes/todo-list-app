@@ -1,45 +1,72 @@
-import { useState } from 'react'
-import './App.css'
+import { useState } from "react";
+import { Check, Eye, Pencil, Trash2 } from "lucide-react";
+import toast, { Toaster } from "react-hot-toast";
+import "./App.css";
 
 function App() {
-  const [task, setTask] = useState('')
-  const [tasks, setTasks] = useState<string[]>([])
+  const [task, setTask] = useState("");
+  const [description, setDescription] = useState("");
+
+  const [tasks, setTasks] = useState<{ title: string; description: string }[]>(
+    [],
+  );
 
   const addTask = () => {
-    if (task.trim() === '') return
+    if (task.trim() === "") {
+      toast.error("Task name must not be empty");
+      return;
+    }
 
-    setTasks([...tasks, task])
-    setTask('')
-  }
+    setTasks([
+      ...tasks,
+      {
+        title: task,
+        description: description,
+      },
+    ]);
+
+    setTask("");
+    setDescription("");
+
+    toast.success("Task added successfully");
+  };
 
   return (
     <div className="app">
+      <Toaster />
+
       <div className="todo-card">
         <div className="header">
           <div>
             <h1>My Todo List</h1>
-            <p className="subtitle">
-              Stay organized and get things done.
-            </p>
+            <p className="subtitle">Stay organized and get things done.</p>
           </div>
 
           <div className="task-count">
-            {tasks.length} {tasks.length === 1 ? 'Task' : 'Tasks'}
+            {tasks.length} {tasks.length === 1 ? "Task" : "Tasks"}
           </div>
         </div>
 
         <div className="todo-input">
-          <input
-            type="text"
-            placeholder="What do you need to do?"
-            value={task}
-            onChange={(e) => setTask(e.target.value)}
-            onKeyDown={(e) => {
-              if (e.key === 'Enter') {
-                addTask()
-              }
-            }}
-          />
+          <div className="input-fields">
+            <input
+              type="text"
+              placeholder="What do you need to do?"
+              value={task}
+              onChange={(e) => setTask(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === "Enter") {
+                  addTask();
+                }
+              }}
+            />
+
+            <textarea
+              placeholder="Add a description..."
+              value={description}
+              onChange={(e) => setDescription(e.target.value)}
+            />
+          </div>
 
           <button className="add-button" onClick={addTask}>
             <span>+</span>
@@ -67,38 +94,38 @@ function App() {
                   <div className="task-number">{index + 1}</div>
 
                   <div className="task-info">
-                    <h3>{task}</h3>
-                    <p>Task #{index + 1}</p>
+                    <h3>{task.title}</h3>
+                    <p>{task.description || "No description"}</p>
                   </div>
                 </div>
 
                 <div className="task-actions">
                   <button
-                    className="action-button complete-button"
-                    title="Complete task"
-                  >
-                    ✓
-                  </button>
-
-                  <button
                     className="action-button view-button"
                     title="View details"
                   >
-                    👁
+                    <Eye size={18} strokeWidth={2} />
                   </button>
 
                   <button
                     className="action-button edit-button"
                     title="Edit task"
                   >
-                    ✎
+                    <Pencil size={18} strokeWidth={2} />
                   </button>
 
                   <button
                     className="action-button delete-button"
                     title="Delete task"
                   >
-                    🗑
+                    <Trash2 size={18} strokeWidth={2} />
+                  </button>
+
+                  <button
+                    className="action-button complete-button"
+                    title="Complete task"
+                  >
+                    <Check size={18} strokeWidth={2} />
                   </button>
                 </div>
               </div>
@@ -106,8 +133,15 @@ function App() {
           )}
         </div>
       </div>
-    </div>
-  )
-}
+      <footer className="footer"> <p>© 2026 Nassim. All rights reserved.</p> </footer>
 
-export default App
+    </div>
+
+
+  );
+
+}
+<footer className="footer"> <p>© 2026 Nassim. All rights reserved.</p> </footer>
+
+
+export default App;
