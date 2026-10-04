@@ -6,11 +6,49 @@ import "./App.css";
 function App() {
   const [task, setTask] = useState("");
   const [description, setDescription] = useState("");
+  const [taskToDelete, setTaskToDelete] = useState<number | null>(null);
+  const [taskToEdit, setTaskToEdit] = useState<number | null>(null);
+  // DeleteTaskFunction
+  const deleteTask = () => {
+    if (taskToDelete === null) return;
 
+    setTasks(tasks.filter((_, index) => index !== taskToDelete));
+
+    setTaskToDelete(null);
+
+    toast.success("Task deleted successfully");
+  };
+  // EditTaskFunction
+  const editTask = () => {
+    if (taskToEdit === null) return;
+
+    if (task.trim() === "") {
+      toast.error("Task name must not be empty");
+      return;
+    }
+
+    setTasks(
+      tasks.map((taskItem, index) =>
+        index === taskToEdit
+          ? {
+              title: task,
+              description: description,
+            }
+          : taskItem,
+      ),
+    );
+
+    setTask("");
+    setDescription("");
+    setTaskToEdit(null);
+
+    toast.success("Task updated successfully");
+  };
   const [tasks, setTasks] = useState<{ title: string; description: string }[]>(
     [],
   );
 
+  // AddTaskFunction
   const addTask = () => {
     if (task.trim() === "") {
       toast.error("Task name must not be empty");
@@ -46,7 +84,6 @@ function App() {
             {tasks.length} {tasks.length === 1 ? "Task" : "Tasks"}
           </div>
         </div>
-
         <div className="todo-input">
           <div className="input-fields">
             <input
@@ -68,18 +105,19 @@ function App() {
             />
           </div>
 
-          <button className="add-button" onClick={addTask}>
-            <span>+</span>
-            Add Task
+          <button
+            className="add-button"
+            onClick={taskToEdit === null ? addTask : editTask}
+          >
+            <span>{taskToEdit === null ? "+" : "✓"}</span>
+            {taskToEdit === null ? "Add Task" : "Update Task"}
           </button>
         </div>
-
         <div className="filters">
           <button className="filter-button active">All</button>
           <button className="filter-button">Active</button>
           <button className="filter-button">Completed</button>
         </div>
-
         <div className="task-list">
           {tasks.length === 0 ? (
             <div className="empty-state">
@@ -110,6 +148,11 @@ function App() {
                   <button
                     className="action-button edit-button"
                     title="Edit task"
+                    onClick={() => {
+                      setTaskToEdit(index);
+                      setTask(task.title);
+                      setDescription(task.description);
+                    }}
                   >
                     <Pencil size={18} strokeWidth={2} />
                   </button>
@@ -117,6 +160,7 @@ function App() {
                   <button
                     className="action-button delete-button"
                     title="Delete task"
+                    onClick={() => setTaskToDelete(index)}
                   >
                     <Trash2 size={18} strokeWidth={2} />
                   </button>
@@ -132,16 +176,46 @@ function App() {
             ))
           )}
         </div>
+        {taskToDelete !== null && (
+          <div className="modal-overlay">
+            <div className="confirmation-modal">
+              <div className="confirmation-icon">
+                <Trash2 size={24} />
+              </div>
+
+              <h2>Delete task?</h2>
+
+              <p>
+                Are you sure you want to delete this task? This action cannot be
+                undone.
+              </p>
+
+              <div className="confirmation-actions">
+                <button
+                  className="cancel-button"
+                  onClick={() => setTaskToDelete(null)}
+                >
+                  Cancel
+                </button>
+
+                <button className="confirm-delete-button" onClick={deleteTask}>
+                  Delete
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
-      <footer className="footer"> <p>© 2026 Nassim. All rights reserved.</p> </footer>
-
+      <footer className="footer">
+        {" "}
+        <p>© 2026 Nassim. All rights reserved.</p>{" "}
+      </footer>
     </div>
-
-
   );
-
 }
-<footer className="footer"> <p>© 2026 Nassim. All rights reserved.</p> </footer>
-
+<footer className="footer">
+  {" "}
+  <p>© 2026 Nassim. All rights reserved.</p>{" "}
+</footer>;
 
 export default App;
