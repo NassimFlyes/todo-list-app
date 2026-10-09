@@ -3,21 +3,35 @@ import { Check, Eye, Pencil, Trash2 } from "lucide-react";
 import toast, { Toaster } from "react-hot-toast";
 import "./App.css";
 
+
+type Task = {
+  title: string;
+  description: string;
+  completed: boolean;
+};
+
 function App() {
   const [task, setTask] = useState("");
   const [description, setDescription] = useState("");
+  const [selectedTask, setSelectedTask] = useState<Task | null>(null);
+
+  const [tasks, setTasks] = useState<Task[]>([]);
+
   const [taskToDelete, setTaskToDelete] = useState<number | null>(null);
   const [taskToEdit, setTaskToEdit] = useState<number | null>(null);
+
   // DeleteTaskFunction
   const deleteTask = () => {
     if (taskToDelete === null) return;
 
-    setTasks(tasks.filter((_, index) => index !== taskToDelete));
+    setTasks((prevTasks) =>
+      prevTasks.filter((_, index) => index !== taskToDelete),
+    );
 
     setTaskToDelete(null);
-
     toast.success("Task deleted successfully");
   };
+
   // EditTaskFunction
   const editTask = () => {
     if (taskToEdit === null) return;
@@ -27,11 +41,12 @@ function App() {
       return;
     }
 
-    setTasks(
-      tasks.map((taskItem, index) =>
+    setTasks((prevTasks) =>
+      prevTasks.map((taskItem, index) =>
         index === taskToEdit
           ? {
-              title: task,
+              ...taskItem,
+              title: task.trim(),
               description: description,
             }
           : taskItem,
@@ -44,9 +59,17 @@ function App() {
 
     toast.success("Task updated successfully");
   };
-  const [tasks, setTasks] = useState<{ title: string; description: string }[]>(
-    [],
-  );
+
+  // ToggleTaskFunction: Active <-> Completed
+  const toggleTask = (index: number) => {
+    setTasks((prevTasks) =>
+      prevTasks.map((taskItem, taskIndex) =>
+        taskIndex === index
+          ? { ...taskItem, completed: !taskItem.completed }
+          : taskItem,
+      ),
+    );
+  };
 
   // AddTaskFunction
   const addTask = () => {
@@ -55,11 +78,12 @@ function App() {
       return;
     }
 
-    setTasks([
-      ...tasks,
+    setTasks((prevTasks) => [
+      ...prevTasks,
       {
-        title: task,
+        title: task.trim(),
         description: description,
+        completed: false,
       },
     ]);
 
@@ -139,10 +163,10 @@ function App() {
 
                 <div className="task-actions">
                   <button
-                    className="action-button view-button"
-                    title="View details"
+                    className={`done-btn ${task.completed ? "is-completed" : ""}`}
+                    onClick={() => toggleTask(task.id)}
                   >
-                    <Eye size={18} strokeWidth={2} />
+                    {task.completed ? "✓ Completed" : "Done"}
                   </button>
 
                   <button
@@ -176,6 +200,19 @@ function App() {
             ))
           )}
         </div>
+        {selectedTask && (
+          <div className="modal-overlay">
+            <div className="task-modal">
+              <h2>Task Details</h2>
+
+              <h3>{selectedTask.title}</h3>
+
+              <p>{selectedTask.description || "No description available."}</p>
+
+              <button onClick={() => setSelectedTask(null)}>Close</button>
+            </div>
+          </div>
+        )}
         {taskToDelete !== null && (
           <div className="modal-overlay">
             <div className="confirmation-modal">
